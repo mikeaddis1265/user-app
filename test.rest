@@ -1,0 +1,59 @@
+
+### Get all users
+GET http://localhost:3000/api/users
+Accept: application/json
+
+
+### Create a user
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "test12",
+  "email": "test123@gmail.com"
+}
+
+
+### PUT update user with ID 1
+PUT http://localhost:3000/api/users/1
+Content-Type: application/json
+
+{
+  "name": "Alice Updated",
+  "email": "alice.updated@example.com"
+}
+
+
+### DELETE user with ID 1
+DELETE http://localhost:3000/api/users/9
+
+
+###GET all posts
+GET http://localhost:3000/api/posts
+Accept: application/json
+
+
+### POST add new post (corrected)
+POST http://localhost:3000/api/posts
+Content-Type: application/json
+
+{
+  "title": "testpost",
+  "content": "have no content",
+  "userId": 2
+}
+
+
+
+### Update post with ID 13 (PUT)
+PUT http://localhost:3000/api/posts/4
+Content-Type: application/json
+
+{
+  "title": "My first post",
+  "content": "Hello world!",
+  "userid": 13
+}
+
+
+
