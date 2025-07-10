@@ -1,10 +1,23 @@
+# Next.js Blog API with JWT Authentication
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+It includes:
+- User authentication with **JWT**
+- API routes for **login**, **register**, **posts**, and **comments**
+- Protected API routes using custom **authentication middleware**
 
-First, run the development server:
+---
+
+## 🔧 Getting Started
+
+First, install dependencies:
 
 ```bash
+npm install
+# or
+yarn install
+
 npm run dev
 # or
 yarn dev
@@ -12,7 +25,7 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
