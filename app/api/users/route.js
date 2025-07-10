@@ -10,12 +10,12 @@ export async function GET(){
     console.log('GET error', error);
     return new Response(JSON.stringify({error: 'internal server error'}), {status: 500})
   }
-}
+}  
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, email } = body;
+    const { name, email, password } = body;
 
     if (!name || !email) {
       return new Response(JSON.stringify({ error: 'Missing name or email' }), {
@@ -24,7 +24,7 @@ export async function POST(req) {
     }
 
     const newUser = await prisma.users.create({
-      data: { name, email },
+      data: { name, email, password },
     });
 
     console.log('new user has been added');

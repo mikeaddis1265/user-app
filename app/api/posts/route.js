@@ -1,39 +1,72 @@
-import prisma from '../../../lib/prisma'
+import { NextResponse } from 'next/server';
+import prisma from '../../../lib/prisma';
+import { withAuth } from '../../../lib/authMiddleware';
 
-export async function GET() {
+// export const get = withAuth (async (req) => {..});
+// /api/posts?page=2&pageSize=5&sortBy=title&sortOrder=asc&search=hello
+
+export const GET = withAuth(async (req) => {
   try {
+    const params = Object.fromEntries(req.nextUrl.searchParams);
+    const {
+      page = 1,
+      pageSize = 5,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      search = ''
+    } = params;
+
+    const skip = (page - 1) * pageSize;
+
     const posts = await prisma.posts.findMany({
-      include: { users: true },
+      where: {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { content: { contains: search, mode: 'insensitive' } }
+        ]
+      },
+      skip: Number(skip),
+      take: Number(pageSize),
+      orderBy: { [sortBy]: sortOrder },
+      include: {
+        users: { select: { id: true, name: true } },
+        comments: {
+          include: {
+            users: { select: { id: true, name: true } }
+          }
+        }
+      }
     });
-    return Response.json(posts);
+
+    return NextResponse.json(posts, { status: 200 });
   } catch (error) {
-    console.error('GET /posts error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
   }
-}
+});
 
-export async function POST(req) {
+/// POST: Create a post
+export const POST = withAuth(async (req) => {
   try {
-    const body = await req.json();
-    const { title, content, userId } = body;
+    const { userId } = req.user;
+    const { title, content } = await req.json();
 
-    if (!title || !userId) {
-      return new Response(JSON.stringify({ error: 'Missing title or userId' }), { status: 400 });
+    if (!title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    const newPost = await prisma.posts.create({
+    const post = await prisma.posts.create({
       data: {
         title,
         content,
-        users: {
-          connect: {id: Number(userId)}
-        }
+        users: { connect: { id: userId } },
       },
+      include: {
+        users: { select: { id: true, name: true } },
+      }
     });
 
-    return new Response(JSON.stringify(newPost), { status: 201 });
+    return NextResponse.json(post, { status: 201 });
   } catch (error) {
-    console.error('POST /posts error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
   }
-}
+});
