@@ -1,16 +1,22 @@
 import prisma from '../../../lib/prisma';
-import { withAuth } from '../../../lib/authMiddleware';
+import { withAuth } from '../../../middlewares/authMiddleware';
 import { NextResponse } from 'next/server';
+import { commentSchema, validate } from '../../../utils/validation';
+import { sendErrorResponse } from '../../../utils/sendErrorResponse';
 
 
 export const POST = withAuth(async (req) => {
   try {
     const { userId } = req.user;
-    const { postId, content } = await req.json();
+    const body = await req.json();
 
-    if (!postId || !content) {
-      return NextResponse.json({ error: 'Missing postId or content' }, { status: 400 });
-    }
+    //validate using zod
+    const { postId, content } = validate(commentSchema, body);
+
+    // const { postId, content } = await req.json();
+    // if (!postId || !content) {
+    //   return NextResponse.json({ error: 'Missing postId or content' }, { status: 400 });
+    // }
 
     const newComment = await prisma.comments.create({
       data: {
@@ -26,7 +32,7 @@ export const POST = withAuth(async (req) => {
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
     console.error('POST /comments error:', error.message);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return sendErrorResponse(error.message || 'Failed to create comment', 400);
   }
 });
 
@@ -50,6 +56,6 @@ export const GET = withAuth(async (req) => {
     return NextResponse.json(comments, { status: 200 });
   } catch (error) {
     console.error('GET /comments error:', error.message);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return sendErrorResponse('Failed to fetch comments', 500);
   }
 });
