@@ -1,82 +1,93 @@
-### Register a new user no jwt required
-POST http://localhost:3000/api/auth/register
-Content-Type: application/json
+@host = http://localhost:3000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMwLCJpYXQiOjE3NTI2NjYwMTIsImV4cCI6MTc1MjY2OTYxMn0.h5ObZ3VzqyvFYANiPiuClH2GCpMDmi4kScOvYAs29AM
 
-{ 
-  "name": "tom",
-  "email": "tom@example.com",
-  "password": "tom123"
-}
-
-### Login a user
-POST http://localhost:3000/api/auth/login
+### 1. Register a new user
+POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "tom",
-  "email": "tom@example.com",
-  "password": "tom123"
+  "name": "Sisay Mulugeta",
+  "email": "sisaymulu@example.com",
+  "password": "sisay123"
 }
 
-### Get all users
-GET http://localhost:3000/api/users
+### 2. Login user (get JWT)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "sisaymulu@example.com",
+  "password": "sisay123"
+}
+
+### 3. Create a new post (auth required)
+POST {{host}}/api/posts
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Art from Addis Ababa",
+  "content": "A look into the rising art scene in Addis Ababa and how tech supports it.",
+  "category": "art"
+}
+
+### 4. Get all posts (public, with search and category filter)
+# GET {{host}}/api/posts?search=AI&category=art&page=1&pageSize=5&sortBy=createdAt&sortOrder=desc
+GET {{host}}/api/posts
 Accept: application/json
 
+### 5. Get a single post by ID (public)
+GET {{host}}/api/posts/17
+Accept: application/json
 
-### Update user with ID 5 (JWT-protected)
-PUT http://localhost:3000/api/users/12
+### 6. Update a post by ID (auth required)
+PATCH {{host}}/api/posts/17
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyLCJpYXQiOjE3NTIxMjEyNzMsImV4cCI6MTc1MjEyNDg3M30.ZCVA_HsyJSSlpn_N2-ZtebX6rtQ7E_3p2EaZtkWAAhs
+Authorization: Bearer {{token}}
 
 {
-  "name": "Alice Updated",
-  "email": "alicesd2updated@example.com",
-  "password": "updatedPassword123"
+  "title": "Updated Title",
+  "content": "Updated content goes here.",
+  "category": "art"
 }
 
+### 7. Delete a post by ID (auth required)
+DELETE {{host}}/api/posts/17
+Authorization: Bearer {{token}}
 
-### DELETE user with ID 1
-DELETE http://localhost:3000/api/users/8
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImlhdCI6MTc1MjA5MjU3MCwiZXhwIjoxNzUyMDk2MTcwfQ.3N6KCfSWX69PTAPiNfc1We0vwFiFFRntS9ELFNgmMJI
+### 8. Get all users (auth required)
+GET {{host}}/api/users
+Authorization: Bearer {{token}}
+Accept: application/json
 
+### 9. Get a single user by ID (auth required)
+GET {{host}}/api/users/29
+Authorization: Bearer {{token}}
+Accept: application/json
 
-
-
-### Create a new post (JWT-protected)
-POST http://localhost:3000/api/posts
+### 10. Update a user by ID (auth required)
+PATCH {{host}}/api/users/27
+Authorization: Bearer {{token}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE0LCJpYXQiOjE3NTIxMjE4MjAsImV4cCI6MTc1MjEyNTQyMH0.cgWUyQElUbLgWJbGPGCeXCabL6tJspOG7fKr4E1mP4I
 
 {
-  "title": "tom post",
-  "content": "hello tom hw are you"
+  "name": "Tim Updated",
+  "email": "updated@example.com"
 }
 
-### Create a comment on a post (replace postId)
-POST http://localhost:3000/api/comments
+### 11. Delete a user by ID (auth required)
+DELETE {{host}}/api/users/27
+Authorization: Bearer {{token}}
+
+### 12. Create a new comment for a post (auth required)
+POST {{host}}/api/posts/18/comments
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE0LCJpYXQiOjE3NTIxMjE4MjAsImV4cCI6MTc1MjEyNTQyMH0.cgWUyQElUbLgWJbGPGCeXCabL6tJspOG7fKr4E1mP4I
+Authorization: Bearer {{token}}
 
 {
-  "postId": 8,
-  "content": " comment on bob you suck! "
+  "content": "This is an vary insightful!"
 }
 
-### show all post
-GET http://localhost:3000/api/posts?page=1&pageSize=5&sortBy=createdAt&sortOrder=desc&search=
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJpYXQiOjE3NTIxMjE1MzQsImV4cCI6MTc1MjEyNTEzNH0.iPKmFqquJsCIh7Rx1BpYbIWEzpB0_OpWlJmwI8BNBJU
-
-
-### Create a new comment (JWT-protected)
-POST http://localhost:3000/api/comments
-Content-Type: application/json
-Authorization: Bearer <your_token_here>
-
-{
-  "postId": 5,
-  "content": "This is a comment on post 5"
-}
-
-GET http://localhost:3000/api/comments
-Authorization: Bearer <your_token_here>
-
+### 13. Get all comments for a post (public)
+GET {{host}}/api/posts/18/comments
+Accept: application/json

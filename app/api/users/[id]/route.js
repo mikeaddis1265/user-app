@@ -1,94 +1,90 @@
-import prisma from '@/lib/prisma';
-import bcrypt from 'bcrypt';
-import { withAuth } from '@/lib/authMiddleware';
+import { NextResponse } from 'next/server';
+import prisma from '../../../../lib/prisma';
+import { withAuth } from '../../../../middleware/authMiddleware';
+import { sendErrorResponse } from '../../../../utils/apiResponse';
 
-// ✅ PUT /api/users/[id]
-export const PUT = withAuth(async (req, { params }) => {
+export const PATCH = withAuth(async (req, { params }) => {
   try {
-    const { id } = params;
-    const { userId } = req.user;
-    const { name, email, password } = await req.json();
+    const { userId: currentUserId } = req.user; // Logged-in user
+    const { id: targetUserId } = params; // User to update
 
-    if (!name && !email && !password) {
-      return new Response(JSON.stringify({ error: 'At least one field (name, email, password) is required' }), { status: 400 });
+    // Only allow users to update their own account
+    if (currentUserId !== Number(targetUserId)) {
+      return sendErrorResponse("Unauthorized: You can only update your own profile", 403);
     }
 
-    const user = await prisma.users.findUnique({ where: { id: Number(id) } });
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
-    }
+    const body = await req.json();
+    const { name, email, password } = body;
 
-    if (Number(id) !== Number(userId)) {
-      return new Response(JSON.stringify({ error: 'Unauthorized: Can only update your own profile' }), { status: 403 });
-    }
-
-    const updateData = {};
-    if (name) updateData.name = name;
-    if (email) {
-      const existingUser = await prisma.users.findUnique({ where: { email } });
-      if (existingUser && existingUser.id !== Number(id)) {
-        return new Response(JSON.stringify({ error: 'Email already in use' }), { status: 400 });
-      }
-      updateData.email = email;
-    }
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
-    }
-
+    // Update user
     const updatedUser = await prisma.users.update({
-      where: { id: Number(id) },
-      data: updateData,
+      where: { id: Number(targetUserId) },
+      data: { name, email, password },
+      select: { id: true, name: true, email: true }, // Don't return password
+    });
+
+    return NextResponse.json(updatedUser, { status: 200 });
+  } catch (error) {
+    console.error('PATCH /users/[id] error:', error.message);
+    return sendErrorResponse(error.message || 'Failed to update user', 400);
+  }
+});
+
+// DELETE user
+export const DELETE = withAuth(async (req, { params }) => {
+  try {
+    const { userId: currentUserId } = req.user;
+    const { id: targetUserId } = params;
+
+    // Only allow users to delete their own account
+    if (currentUserId !== Number(targetUserId)) {
+      return sendErrorResponse("Unauthorized: You can only delete your own account", 403);
+    }
+
+    // Delete user (Prisma's onDelete: Cascade will handle related posts/comments)
+    await prisma.users.delete({
+      where: { id: Number(targetUserId) },
+    });
+
+    return NextResponse.json(
+      { message: "User deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('DELETE /users/[id] error:', error.message);
+    return sendErrorResponse(error.message || 'Failed to delete user', 400);
+  }
+});
+
+export const GET = withAuth(async (req, { params }) => {
+  try {
+    const { id: targetUserId } = params;
+
+    // Fetch user with related posts
+    const user = await prisma.users.findUnique({
+      where: { id: Number(targetUserId) },
       select: {
         id: true,
         name: true,
         email: true,
-        createdAt: true,
         posts: {
-          select: { id: true, title: true, content: true, createdAt: true },
-        },
-        comments: {
           select: {
             id: true,
+            title: true,
             content: true,
-            createdAt: true,
-            posts: { select: { id: true, title: true } },
+            // add more post fields here if needed
           },
         },
       },
     });
 
-    return new Response(JSON.stringify(updatedUser), { status: 200 });
-
-  } catch (error) {
-    console.error('PUT /users/[id] error:', error);
-    if (error.code === 'P2002') {
-      return new Response(JSON.stringify({ error: 'Email already in use' }), { status: 400 });
-    }
-    return new Response(JSON.stringify({ error: 'Update failed' }), { status: 500 });
-  }
-});
-
-// ✅ DELETE /api/users/[id]
-export const DELETE = withAuth(async (req, { params }) => {
-  try {
-    const { id } = params;
-    const { userId } = req.user;
-
-    const user = await prisma.users.findUnique({ where: { id: Number(id) } });
     if (!user) {
-      return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+      return sendErrorResponse('User not found', 404);
     }
 
-    if (Number(id) !== Number(userId)) {
-      return new Response(JSON.stringify({ error: 'Unauthorized: Can only delete your own profile' }), { status: 403 });
-    }
-
-    await prisma.users.delete({ where: { id: Number(id) } });
-
-    return new Response(null, { status: 204 });
-
+    return NextResponse.json(user, { status: 200 });
   } catch (error) {
-    console.error('DELETE /users/[id] error:', error);
-    return new Response(JSON.stringify({ error: 'Delete failed' }), { status: 500 });
+    console.error('GET /users/[id] error:', error.message);
+    return sendErrorResponse(error.message || 'Failed to fetch user', 400);
   }
 });

@@ -24,3 +24,4 @@ export const withAuth = function (handler) {
     }
   };
 };
+

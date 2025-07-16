@@ -1,49 +1,70 @@
 # Next.js Blog API with JWT Authentication
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+A full-featured blog API built with Next.js featuring user authentication, post management, and comment functionality.
 
-It includes:
-- User authentication with **JWT**
-- API routes for **login**, **register**, **posts**, and **comments**
-- Protected API routes using custom **authentication middleware**
+## Features
 
----
+- 🔐 JWT Authentication (Register, Login)
+- 📝 CRUD Operations for Blog Posts
+- 💬 Post Comments System
+- 👥 User Management (Admin)
+- 🔍 Search & Filter Posts
+- 🔒 Protected API Routes
 
-## 🔧 Getting Started
+## API Endpoints
 
-First, install dependencies:
+### Authentication
+| Method | Endpoint                | Description           | Auth Required |
+|--------|-------------------------|-----------------------|---------------|
+| POST   | `/api/auth/register`    | Register new user     | No            |
+| POST   | `/api/auth/login`       | Login user (get JWT)  | No            |
 
+### Posts
+| Method | Endpoint                | Description                          | Auth Required |
+|--------|-------------------------|--------------------------------------|---------------|
+| GET    | `/api/posts`            | Get all posts (filterable/searchable)| No            |
+| GET    | `/api/posts/:id`        | Get single post                      | No            |
+| POST   | `/api/posts`            | Create new post                      | Yes           |
+| PATCH  | `/api/posts/:id`        | Update post                          | Yes           |
+| DELETE | `/api/posts/:id`        | Delete post                          | Yes           |
+
+### Comments
+| Method | Endpoint                        | Description                | Auth Required |
+|--------|---------------------------------|----------------------------|---------------|
+| GET    | `/api/posts/:id/comments`       | Get all comments for post  | No            |
+| POST   | `/api/posts/:id/comments`       | Add comment to post        | Yes           |
+
+### Users (Admin)
+| Method | Endpoint          | Description          | Auth Required |
+|--------|-------------------|----------------------|---------------|
+| GET    | `/api/users`      | Get all users        | Yes           |
+| GET    | `/api/users/:id`  | Get single user      | Yes           |
+| PATCH  | `/api/users/:id`  | Update user          | Yes           |
+| DELETE | `/api/users/:id`  | Delete user          | Yes           |
+
+## Query Parameters for Posts
+
+- `search`: Search term in title/content
+- `category`: Filter by category
+- `page`: Pagination page number
+- `pageSize`: Items per page
+- `sortBy`: Field to sort by (`createdAt`, `title`)
+- `sortOrder`: `asc` or `desc`
+
+Example: `/api/posts?search=AI&category=tech&page=1&pageSize=5&sortBy=createdAt&sortOrder=desc`
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18+ recommended)
+- npm/yarn/pnpm
+
+### Installation
+1. Clone the repository
+2. Install dependencies:
 ```bash
 npm install
 # or
 yarn install
-
-npm run dev
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+pnpm install

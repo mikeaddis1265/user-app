@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
-import { withAuth } from '../../../lib/authMiddleware';
+import { withAuth } from '../../../middleware/authMiddleware';
+import { postSchema, validate } from '../../../utils/validation';
+import { sendErrorResponse } from '../../../utils/apiResponse';
+
+
 
 // export const get = withAuth (async (req) => {..});
 // /api/posts?page=2&pageSize=5&sortBy=title&sortOrder=asc&search=hello
 
-export const GET = withAuth(async (req) => {
+export const GET = async (req) => {
   try {
     const params = Object.fromEntries(req.nextUrl.searchParams);
     const {
@@ -13,7 +17,8 @@ export const GET = withAuth(async (req) => {
       pageSize = 5,
       sortBy = 'createdAt',
       sortOrder = 'desc',
-      search = ''
+      search = '',
+      category = '',
     } = params;
 
     const skip = (page - 1) * pageSize;
@@ -40,24 +45,30 @@ export const GET = withAuth(async (req) => {
 
     return NextResponse.json(posts, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+    console.error('GET /posts error:', error.message);
+    return sendErrorResponse('Failed to fetch posts', 500);
   }
-});
+};
 
 /// POST: Create a post
 export const POST = withAuth(async (req) => {
   try {
     const { userId } = req.user;
-    const { title, content } = await req.json();
+    const body = await req.json();
 
-    if (!title) {
-      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-    }
+    //validate input using zod
+    const {title, content, category} = validate(postSchema, body);
+    // const { title, content } = await req.json();
+
+    // if (!title) {
+    //   return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    // }
 
     const post = await prisma.posts.create({
       data: {
         title,
         content,
+        category,
         users: { connect: { id: userId } },
       },
       include: {
@@ -67,6 +78,6 @@ export const POST = withAuth(async (req) => {
 
     return NextResponse.json(post, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
+    return sendErrorResponse(error.message || 'Failed to create post', 400);
   }
 });
