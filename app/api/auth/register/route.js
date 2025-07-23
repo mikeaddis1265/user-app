@@ -3,7 +3,7 @@ import prisma from '../../../../lib/prisma'
 import bcrypt from 'bcrypt';
 import { registerSchema, validate } from '../../../../utils/validation';
 import { sendErrorResponse } from '../../../../utils/apiResponse';
-import { send } from 'process';
+
 
 export async function POST(req) {
   try {
@@ -18,8 +18,8 @@ export async function POST(req) {
     // }
 
 
-    //check for existing user
-   const existingUser = await prisma.users.findUnique({ where: { email } });
+    
+    const existingUser = await prisma.users.findUnique({ where: { email } });
     if (existingUser) {
       return sendErrorResponse('Email already exists', 409);
     }

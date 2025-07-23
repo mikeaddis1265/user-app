@@ -6,11 +6,14 @@ import { sendErrorResponse } from '../../../utils/apiResponse';
 
 
 
+
+//GET – to fetch posts with search, sorting, pagination and filtering by category
 // export const get = withAuth (async (req) => {..});
 // /api/posts?page=2&pageSize=5&sortBy=title&sortOrder=asc&search=hello
 
 export const GET = async (req) => {
   try {
+
     const params = Object.fromEntries(req.nextUrl.searchParams);
     const {
       page = 1,
@@ -50,7 +53,27 @@ export const GET = async (req) => {
   }
 };
 
-/// POST: Create a post
+
+// export const GET = async () => {
+//   try {
+//     const posts = await prisma.posts.findMany({
+//       select: {
+//         id: true,
+//         title: true,
+//         createdAt: true,
+//         category: true,
+//       },
+//       orderBy: { createdAt: 'desc' },
+//     });
+
+//     return NextResponse.json(posts, { status: 200 });
+//   } catch (error) {
+//     console.error('GET /posts error:', error.message);
+//     return sendErrorResponse('Failed to fetch posts', 500);
+//   }
+// };
+
+
 export const POST = withAuth(async (req) => {
   try {
     const { userId } = req.user;

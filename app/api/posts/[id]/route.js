@@ -12,7 +12,7 @@ export const PATCH = withAuth(async (req, { params }) => {
     const body = await req.json();
 
     
-    const { title, content } = validate(postSchema.partial(), body);
+    const { title, content, category } = validate(postSchema.partial(), body);
 
     // Check if post exists and belongs to the user
     const existingPost = await prisma.posts.findFirst({
@@ -26,7 +26,7 @@ export const PATCH = withAuth(async (req, { params }) => {
     // Update post
     const updatedPost = await prisma.posts.update({
       where: { id: Number(postId) },
-      data: { title, content },
+      data: { title, content, category},
       include: {
         users: { select: { id: true, name: true } },
       },

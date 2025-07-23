@@ -1,4 +1,3 @@
-// user-app/utils/validation.js
 import { z } from 'zod';
 
 // Schema for user registration
@@ -7,6 +6,12 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email format').max(100, 'Email must be 100 characters or less'),
   password: z.string().min(6, 'Password must be at least 6 characters').max(255, 'Password must be 255 characters or less'),
 });
+
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email format').max(100, 'Email must be 100 characters or less'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(255, 'Password must be 255 characters or less'),
+});
+
 
 // Schema for creating a post
 export const postSchema = z.object({

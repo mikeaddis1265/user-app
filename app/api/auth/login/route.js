@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { loginSchema, validate } from '../../../../utils/validation';
 import prisma from '../../../../lib/prisma'
+
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
+    
+    const body = await req.json();
 
-    if (!email || !password) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
+    const {email ,password} = validate(loginSchema, body);
+
+    // if (!email || !password) {
+    // return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    // }
 
     const user = await prisma.users.findUnique({ where: { email } });
     

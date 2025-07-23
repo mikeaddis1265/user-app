@@ -6,8 +6,8 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "Sisay Mulugeta",
-  "email": "sisaymulu@example.com",
+  "name": "ab Mulugeta",
+  "email": "ab@example.com",
   "password": "sisay123"
 }
 
@@ -16,7 +16,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "sisaymulu@example.com",
+  "email": "ab@example.com",
   "password": "sisay123"
 }
 

@@ -23,28 +23,40 @@ export const GET = async (req, { params }) => {
   }
 };
 
+
+
 export const POST = withAuth(async (req, { params }) => {
   try {
-    const { userId } = req.user;
-    const { id } = params; // Changed from postid to id to match the folder structure
-
+    const { id: postId } = params;
+    const { userId } = req.user; 
     const body = await req.json();
-    const { content } = validate(
-      commentSchema.pick({ content: true }),
-      { content: body.content }
-    );
+    
+    // Validate the request body against the comment schema
+    const { content } = validate(commentSchema, {
+      postId: Number(postId), // Convert postId to number and include in validation
+      content: body.content
+    });
 
+    // Create the comment in the database
     const newComment = await prisma.comments.create({
       data: {
         content,
-        userid: Number(userId),
-        postid: Number(id), // Changed to match the folder structure [id]
+        userid: userId,
+        postid: Number(postId)
       },
+      include: {
+        users: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
     });
 
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
     console.error('POST /posts/[id]/comments error:', error.message);
-    return sendErrorResponse(error.message || 'Failed to create comment', 400);
+    return sendErrorResponse(error.message || 'Failed to create comment', 500);
   }
 });
