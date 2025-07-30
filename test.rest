@@ -1,5 +1,5 @@
 @host = http://localhost:3000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMwLCJpYXQiOjE3NTI2NjYwMTIsImV4cCI6MTc1MjY2OTYxMn0.h5ObZ3VzqyvFYANiPiuClH2GCpMDmi4kScOvYAs29AM
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMxLCJpYXQiOjE3NTMzNDQ0NzUsImV4cCI6MTc1MzM0ODA3NX0.ZIEtSFtPUZSTehgnztt-09D2kXCLS-QwOml9sSmkfJY
 
 ### 1. Register a new user
 POST {{host}}/api/auth/register
@@ -28,31 +28,31 @@ Authorization: Bearer {{token}}
 {
   "title": "Art from Addis Ababa",
   "content": "A look into the rising art scene in Addis Ababa and how tech supports it.",
-  "category": "art"
+  "category": "tech"
 }
 
 ### 4. Get all posts (public, with search and category filter)
-# GET {{host}}/api/posts?search=AI&category=art&page=1&pageSize=5&sortBy=createdAt&sortOrder=desc
-GET {{host}}/api/posts
+ GET {{host}}/api/posts?search=AI&category=art&page=1&pageSize=5&sortBy=createdAt&sortOrder=desc
+
 Accept: application/json
 
 ### 5. Get a single post by ID (public)
-GET {{host}}/api/posts/17
+GET {{host}}/api/posts/1
 Accept: application/json
 
 ### 6. Update a post by ID (auth required)
-PATCH {{host}}/api/posts/17
+PATCH {{host}}/api/posts/30
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "title": "Updated Title",
+  "title": "new Title",
   "content": "Updated content goes here.",
   "category": "art"
 }
 
 ### 7. Delete a post by ID (auth required)
-DELETE {{host}}/api/posts/17
+DELETE {{host}}/api/posts/30
 Authorization: Bearer {{token}}
 
 ### 8. Get all users (auth required)
@@ -79,7 +79,7 @@ Content-Type: application/json
 DELETE {{host}}/api/users/27
 Authorization: Bearer {{token}}
 
-### 12. Create a new comment for a post (auth required)
+### 12. Create a new comment for a post 
 POST {{host}}/api/posts/18/comments
 Content-Type: application/json
 Authorization: Bearer {{token}}

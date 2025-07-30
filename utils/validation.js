@@ -13,20 +13,20 @@ export const loginSchema = z.object({
 });
 
 
-// Schema for creating a post
+
 export const postSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or less'),
   content: z.string().optional(),
   category: z.string().optional(),
 });
 
-// Schema for creating a comment
+
 export const commentSchema = z.object({
   postId: z.number().int().positive('Post ID must be a positive integer'),
   content: z.string().min(1, 'Content is required'),
 });
 
-// Validation function to parse and validate input
+
 export const validate = (schema, data) => {
   try {
     if (!data || typeof data !== 'object') {

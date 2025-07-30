@@ -25,3 +25,8 @@ export const withAuth = function (handler) {
   };
 };
 
+
+
+// export const config = {
+//   matcher: ['/about/:path*', '/dashboard/:path*'],
+// }
