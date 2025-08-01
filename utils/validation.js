@@ -12,20 +12,16 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters').max(255, 'Password must be 255 characters or less'),
 });
 
-
-
 export const postSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or less'),
   content: z.string().optional(),
   category: z.string().optional(),
 });
 
-
 export const commentSchema = z.object({
   postId: z.number().int().positive('Post ID must be a positive integer'),
   content: z.string().min(1, 'Content is required'),
 });
-
 
 export const validate = (schema, data) => {
   try {
